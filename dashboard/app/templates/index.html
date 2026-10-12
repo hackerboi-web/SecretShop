@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Secret Shop - Home{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8 text-center">
+        <div class="animate-fade-in">
+            <div class="mb-4">
+                <i class="bi bi-shop display-1 text-primary"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-3">Welcome to Secret Shop</h1>
+            <p class="lead text-muted mb-4">
+                A Discord economy bot with persistent panels, loyalty points, vaults, crafting, and more.
+                Manage your account, browse the shop, and track your progress from this dashboard.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                {% if session.get('user') %}
+                    <a href="{{ url_for('user.dashboard') }}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
+                    </a>
+                    <a href="{{ url_for('user.shop') }}" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="bi bi-shop me-2"></i>Browse Shop
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-discord me-2"></i>Login with Discord
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <div class="row text-center">
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-primary"><i class="bi bi-coin"></i></div>
+                    <div class="stat-value text-primary">Points</div>
+                    <div class="stat-label">Earn & Spend</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-success"><i class="bi bi-box"></i></div>
+                    <div class="stat-value text-success">Items</div>
+                    <div class="stat-label">Collect & Craft</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-warning"><i class="bi bi-safe"></i></div>
+                    <div class="stat-value text-warning">Vaults</div>
+                    <div class="stat-label">Store & Grow</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-5">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-chest display-4 text-primary mb-3"></i>
+                        <h5 class="card-title">Chest Opening</h5>
+                        <p class="card-text text-muted">Open chests for random rewards including points, materials, and rare items.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-hammer display-4 text-success mb-3"></i>
+                        <h5 class="card-title">Forge Crafting</h5>
+                        <p class="card-text text-muted">Combine materials to craft powerful items with success rates and protection passes.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center p-4">
+                        <i class="bi bi-trophy display-4 text-warning mb-3"></i>
+                        <h5 class="card-title">Quests & Giveaways</h5>
+                        <p class="card-text text-muted">Complete daily quests and join giveaways for extra rewards.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

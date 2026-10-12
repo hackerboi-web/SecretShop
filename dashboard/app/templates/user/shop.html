@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Shop - Secret Shop{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-shop me-2"></i>Shop</h2>
+            <div class="d-flex gap-2">
+                <span class="badge bg-primary fs-6 px-3 py-2 align-self-center" id="balance-badge">
+                    <i class="bi bi-coin me-1"></i>{{ balance.balance if balance else 0 }} pts
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if categories %}
+    <!-- Category Tabs -->
+    <ul class="nav nav-pills category-tabs mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#all">All Items</button>
+        </li>
+        {% for category, items in categories.items() %}
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" data-bs-toggle="pill" data-bs-target="#{{ category }}">
+                {{ category.title() }} ({{ items|length }})
+            </button>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="all" role="tabpanel">
+            {% set all_items = [] %}
+            {% for cat_items in categories.values() %}
+                {% set _ = all_items.extend(cat_items) %}
+            {% endfor %}
+            {% include 'user/shop_grid.html' with { items: all_items } %}
+        </div>
+
+        {% for category, items in categories.items() %}
+        <div class="tab-pane fade" id="{{ category }}" role="tabpanel">
+            {% include 'user/shop_grid.html' with { items: items } %}
+        </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-shop"></i>
+        <h4>Shop is empty</h4>
+        <p class="text-muted">No items available at the moment.</p>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Update balance badge periodically
+    setInterval(async () => {
+        try {
+            const response = await fetch('/api/balance');
+            if (response.ok) {
+                const data = await response.json();
+                const badge = document.getElementById('balance-badge');
+                if (badge && data.balance !== undefined) {
+                    badge.innerHTML = `<i class="bi bi-coin me-1"></i>${data.balance.toLocaleString()} pts`;
+                }
+            }
+        } catch (e) {}
+    }, 30000);
+</script>
+{% endblock %}

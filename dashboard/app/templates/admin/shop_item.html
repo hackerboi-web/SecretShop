@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}{% if item %}Edit: {{ item.name }}{% else %}New Shop Item{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.dashboard') }}">Admin</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.shop') }}">Shop</a></li>
+                <li class="breadcrumb-item active">{% if item %}Edit: {{ item.name }}{% else %}New Item{% endif %}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">{% if item %}<i class="bi bi-pencil me-2"></i>Edit Item{% else %}<i class="bi bi-plus me-2"></i>New Item{% endif %}</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Item ID <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="item_id" value="{{ item.item_id if item else '' }}"
+                                {% if item %}readonly{% endif %} required pattern="[a-z0-9_]+" placeholder="unique_item_id">
+                            <div class="form-text">Lowercase, numbers, underscores only. Cannot be changed after creation.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="name" value="{{ item.name if item else '' }}" required maxlength="100">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Description</label>
+                            <textarea class="form-control" name="description" rows="3" maxlength="500">{{ item.description if item else '' }}</textarea>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Price <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control" name="price" value="{{ item.price if item else 0 }}" required min="0">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Category <span class="text-danger">*</span></label>
+                            <select class="form-select" name="category" required>
+                                <option value="materials" {% if item and item.category == 'materials' %}selected{% endif %}>Materials</option>
+                                <option value="keys" {% if item and item.category == 'keys' %}selected{% endif %}>Keys</option>
+                                <option value="roles" {% if item and item.category == 'roles' %}selected{% endif %}>Roles</option>
+                                <option value="consumables" {% if item and item.category == 'consumables' %}selected{% endif %}>Consumables</option>
+                                <option value="cosmetics" {% if item and item.category == 'cosmetics' %}selected{% endif %}>Cosmetics</option>
+                                <option value="vault" {% if item and item.category == 'vault' %}selected{% endif %}>Vault</option>
+                                <option value="other" {% if item and item.category == 'other' %}selected{% endif %}>Other</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Role ID (for role items)</label>
+                            <input type="text" class="form-control" name="role_id" value="{{ item.role_id if item and item.role_id else '' }}" placeholder="Discord Role ID">
+                            <div class="form-text">Only for role category items</div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" name="consumable" id="consumable" {% if item and item.consumable %}checked{% endif %}>
+                                <label class="form-check-label" for="consumable">Consumable</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if not item or item.is_active %}checked{% endif %}>
+                                <label class="form-check-label" for="is_active">Active</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Max Per User</label>
+                            <input type="number" class="form-control" name="max_per_user" value="{{ item.max_per_user if item and item.max_per_user else '' }}" min="1" placeholder="Unlimited">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Cooldown (seconds)</label>
+                            <input type="number" class="form-control" name="cooldown_seconds" value="{{ item.cooldown_seconds if item else 0 }}" min="0">
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Sort Order</label>
+                            <input type="number" class="form-control" name="sort_order" value="{{ item.sort_order if item else 0 }}" min="0">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Metadata (JSON)</label>
+                            <textarea class="form-control font-monospace" name="metadata" rows="6">{{ item.metadata | tojson(indent=2) if item else '{}' }}</textarea>
+                            <div class="form-text">Additional item data (rarity, effects, requirements, etc.)</div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a href="{{ url_for('admin.shop') }}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-{% if item %}check{% else %}plus{% endif %} me-1"></i>{% if item %}Save Changes{% else %}Create Item{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // JSON validation for metadata field
+    document.querySelector('textarea[name="metadata"]').addEventListener('blur', function() {
+        try {
+            JSON.parse(this.value);
+            this.classList.remove('is-invalid');
+        } catch (e) {
+            this.classList.add('is-invalid');
+        }
+    });
+</script>
+{% endblock %}

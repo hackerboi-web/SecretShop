@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Inventory - Secret Shop{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-bag me-2"></i>Inventory</h2>
+            <a href="{{ url_for('user.shop') }}" class="btn btn-primary">
+                <i class="bi bi-shop me-1"></i>Visit Shop
+            </a>
+        </div>
+    </div>
+</div>
+
+{% if inventory %}
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control" id="inventory-search" placeholder="Search items...">
+            </div>
+        </div>
+        <div class="col-md-6 text-end">
+            <select class="form-select w-auto d-inline-block" id="category-filter">
+                <option value="">All Categories</option>
+                <option value="materials">Materials</option>
+                <option value="keys">Keys</option>
+                <option value="roles">Roles</option>
+                <option value="consumables">Consumables</option>
+                <option value="cosmetics">Cosmetics</option>
+                <option value="vault">Vault</option>
+                <option value="other">Other</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-0">
+            <div id="inventory-list">
+                {% for inv_item in inventory %}
+                {% if inv_item.item_data %}
+                <div class="inventory-item" data-category="{{ inv_item.item_data.category }}" data-name="{{ inv_item.item_data.name | lower }}">
+                    <div class="inventory-item-icon">
+                        <i class="bi {% if inv_item.item_data.category == 'materials' %}bi-gem{% elif inv_item.item_data.category == 'keys' %}bi-key{% elif inv_item.item_data.category == 'roles' %}bi-person-badge{% elif inv_item.item_data.category == 'consumables' %}bi-lightning{% elif inv_item.item_data.category == 'vault' %}bi-safe{% else %}bi-box{% endif %}"></i>
+                    </div>
+                    <div class="inventory-item-info">
+                        <div class="inventory-item-name">{{ inv_item.item_data.name }}</div>
+                        <div class="inventory-item-meta">{{ inv_item.item_data.description }}</div>
+                        <div class="inventory-item-meta">
+                            Category: {{ inv_item.item_data.category }}
+                            {% if inv_item.item_data.metadata and inv_item.item_data.metadata.rarity %}
+                                • Rarity: {{ inv_item.item_data.metadata.rarity }}
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="inventory-item-quantity">×{{ inv_item.quantity }}</span>
+                        <div class="btn-group btn-group-sm">
+                            {% if inv_item.item_data.consumable %}
+                            <button class="btn btn-outline-primary" onclick="useItem('{{ inv_item.item_id }}')">
+                                <i class="bi bi-lightning"></i> Use
+                            </button>
+                            {% endif %}
+                            <button class="btn btn-outline-danger" onclick="sellItem('{{ inv_item.item_id }}', {{ inv_item.quantity }})">
+                                <i class="bi bi-cash"></i> Sell
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-3 text-muted">
+        {{ inventory|length }} unique items
+    </div>
+{% else %}
+    <div class="empty-state">
+        <i class="bi bi-bag"></i>
+        <h4>Inventory is Empty</h4>
+        <p class="text-muted">You don't own any items yet. Visit the shop to purchase some!</p>
+        <a href="{{ url_for('user.shop') }}" class="btn btn-primary mt-3">
+            <i class="bi bi-shop me-1"></i>Go to Shop
+        </a>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('inventory-search').addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('#inventory-list .inventory-item').forEach(item => {
+            const name = item.dataset.name;
+            item.style.display = name.includes(query) ? 'flex' : 'none';
+        });
+    });
+
+    document.getElementById('category-filter').addEventListener('change', function() {
+        const category = this.value;
+        document.querySelectorAll('#inventory-list .inventory-item').forEach(item => {
+            if (!category || item.dataset.category === category) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    function useItem(itemId) {
+        showToast('Item use functionality coming soon', 'info');
+    }
+
+    function sellItem(itemId, qty) {
+        if (confirm(`Sell ${qty}x this item?`)) {
+            showToast('Sell functionality coming soon', 'info');
+        }
+    }
+</script>
+{% endblock %}

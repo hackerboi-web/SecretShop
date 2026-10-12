@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Shop Management - Secret Shop{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-shop me-2"></i>Shop Management</h2>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('admin.shop_new') }}" class="btn btn-success">
+                    <i class="bi bi-plus me-1"></i>Add New Item
+                </a>
+                <form method="POST" action="{{ url_for('admin.shop_sync') }}" class="d-inline">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-repeat me-1"></i>Sync from items.json
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>ID</th>
+                        <th>Price</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Max/User</th>
+                        <th>Active</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>
+                            <strong>{{ item.name }}</strong>
+                            <br><small class="text-muted">{{ item.description[:50] }}...</small>
+                        </td>
+                        <td><code>{{ item.item_id }}</code></td>
+                        <td class="fw-bold text-primary">{{ item.price.toLocaleString() }} pts</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ item.category }}</span>
+                        </td>
+                        <td>
+                            {% if item.consumable %}
+                                <span class="badge bg-info">Consumable</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Permanent</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ item.max_per_user or '∞' }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if item.is_active else 'secondary' }}">
+                                {{ 'Yes' if item.is_active else 'No' }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.shop_item', item_id=item.item_id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not items %}
+        <div class="empty-state">
+            <i class="bi bi-shop"></i>
+            <p>No shop items configured</p>
+            <a href="{{ url_for('admin.shop_new') }}" class="btn btn-primary mt-3">Add First Item</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

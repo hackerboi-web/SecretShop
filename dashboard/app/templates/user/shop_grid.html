@@ -1,0 +1,58 @@
+<div class="row g-3">
+    {% for item in items %}
+    <div class="col-xl-3 col-lg-4 col-md-6">
+        <div class="card shop-item-card h-100 rarity-{{ item.metadata?.rarity or 'common' }}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">{{ item.name }}</h6>
+                <span class="badge bg-secondary">{{ item.category }}</span>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <p class="card-text text-muted small flex-grow-1">{{ item.description }}</p>
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="shop-item-price">{{ item.price.toLocaleString() }} pts</span>
+                    {% if item.consumable %}
+                        <span class="badge bg-info">Consumable</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Permanent</span>
+                    {% endif %}
+                </div>
+
+                {% if item.max_per_user %}
+                <div class="text-muted small mb-2">
+                    <i class="bi bi-person me-1"></i>Max per user: {{ item.max_per_user }}
+                </div>
+                {% endif %}
+
+                {% if item.metadata %}
+                <div class="text-muted small mb-2">
+                    {% if item.metadata.rarity %}
+                        <span class="badge bg-secondary">{{ item.metadata.rarity }}</span>
+                    {% endif %}
+                    {% if item.metadata.source %}
+                        <span class="badge bg-secondary ms-1">Source: {{ item.metadata.source }}</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="mt-auto pt-2">
+                    <a href="{{ url_for('user.shop_item', item_id=item.item_id) }}" class="btn btn-outline-primary w-100 mb-2">
+                        <i class="bi bi-info-circle me-1"></i>Details
+                    </a>
+                    <button class="btn btn-primary w-100" onclick="buyItem('{{ item.item_id }}', {{ item.price }})"
+                        {% if balance and balance.balance < item.price %}disabled{% endif %}>
+                        <i class="bi bi-cart-plus me-1"></i>Buy for {{ item.price.toLocaleString() }} pts
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if items|length == 0 %}
+<div class="empty-state">
+    <i class="bi bi-box"></i>
+    <p>No items in this category</p>
+</div>
+{% endif %}

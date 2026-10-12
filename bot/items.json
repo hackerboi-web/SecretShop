@@ -1,0 +1,179 @@
+{
+  "items": {
+    "common_ore": {
+      "name": "Common Ore",
+      "description": "Basic crafting material found in the digsite",
+      "price": 100,
+      "category": "materials",
+      "consumable": false,
+      "max_per_user": 1000,
+      "metadata": {
+        "rarity": "common",
+        "source": "digsite",
+        "zone": "basic"
+      }
+    },
+    "rare_crystal": {
+      "name": "Rare Crystal",
+      "description": "Uncommon crystal used in advanced crafting",
+      "price": 500,
+      "category": "materials",
+      "consumable": false,
+      "max_per_user": 500,
+      "metadata": {
+        "rarity": "rare",
+        "source": "digsite",
+        "zone": "crystal_caves"
+      }
+    },
+    "ancient_shard": {
+      "name": "Ancient Shard",
+      "description": "Mysterious shard from a forgotten era",
+      "price": 2500,
+      "category": "materials",
+      "consumable": false,
+      "max_per_user": 100,
+      "metadata": {
+        "rarity": "epic",
+        "source": "digsite",
+        "zone": "ancient_ruins"
+      }
+    },
+    "basic_chest_key": {
+      "name": "Basic Chest Key",
+      "description": "Opens a basic chest for random rewards",
+      "price": 500,
+      "category": "keys",
+      "consumable": true,
+      "max_per_user": 50,
+      "metadata": {
+        "chest_type": "basic",
+        "rewards": ["points", "common_ore", "rare_crystal"]
+      }
+    },
+    "premium_chest_key": {
+      "name": "Premium Chest Key",
+      "description": "Opens a premium chest with better rewards",
+      "price": 2000,
+      "category": "keys",
+      "consumable": true,
+      "max_per_user": 20,
+      "metadata": {
+        "chest_type": "premium",
+        "rewards": ["points", "rare_crystal", "ancient_shard", "forge_guard_pass"]
+      }
+    },
+    "forge_guard_pass": {
+      "name": "Forge Guard Pass",
+      "description": "Preserves all materials on craft failure",
+      "price": 5000,
+      "category": "consumables",
+      "consumable": true,
+      "max_per_user": 10,
+      "metadata": {
+        "type": "forge_protection",
+        "tier": "standard"
+      }
+    },
+    "premium_forge_guard_pass": {
+      "name": "Premium Forge Guard Pass",
+      "description": "Preserves materials and increases success chance",
+      "price": 15000,
+      "category": "consumables",
+      "consumable": true,
+      "max_per_user": 5,
+      "metadata": {
+        "type": "forge_protection",
+        "tier": "premium",
+        "success_bonus": 0.25
+      }
+    },
+    "vip_role": {
+      "name": "VIP Role",
+      "description": "Grants VIP role with exclusive perks and color",
+      "price": 50000,
+      "category": "roles",
+      "role_id": "0",
+      "consumable": false,
+      "max_per_user": 1,
+      "metadata": {
+        "perks": ["custom_color", "vip_channel", "badge", "reduced_cooldowns"],
+        "color": "#FFD700"
+      }
+    },
+    "supporter_role": {
+      "name": "Supporter Role",
+      "description": "Show your support with a special role",
+      "price": 10000,
+      "category": "roles",
+      "role_id": "0",
+      "consumable": false,
+      "max_per_user": 1,
+      "metadata": {
+        "perks": ["supporter_badge", "priority_support"],
+        "color": "#00FF7F"
+      }
+    },
+    "tiny_vault_upgrade": {
+      "name": "Tiny Vault Upgrade",
+      "description": "Upgrade your vault to Small Vault (requires Common Ore x3 + Basic Chest Key x1)",
+      "price": 0,
+      "category": "vault",
+      "consumable": true,
+      "max_per_user": 1,
+      "metadata": {
+        "vault_tier": "small",
+        "requirements": {
+          "common_ore": 3,
+          "basic_chest_key": 1
+        },
+        "capacity": { "items": 20, "points": 30000 }
+      }
+    },
+    "small_vault_upgrade": {
+      "name": "Small Vault Upgrade",
+      "description": "Upgrade to Medium Vault (requires Rare Crystal x5 + Forged Steel Ingot x2)",
+      "price": 0,
+      "category": "vault",
+      "consumable": true,
+      "max_per_user": 1,
+      "metadata": {
+        "vault_tier": "medium",
+        "requirements": {
+          "rare_crystal": 5,
+          "forged_steel_ingot": 2
+        },
+        "capacity": { "items": 60, "points": 75000 },
+        "migrates_from": "tiny"
+      }
+    },
+    "daily_boost": {
+      "name": "Daily Boost",
+      "description": "Doubles your next daily reward",
+      "price": 3000,
+      "category": "consumables",
+      "consumable": true,
+      "max_per_user": 3,
+      "cooldown_seconds": 86400,
+      "metadata": {
+        "type": "daily_multiplier",
+        "multiplier": 2,
+        "duration_hours": 24
+      }
+    },
+    "xp_boost": {
+      "name": "XP Boost",
+      "description": "Increases quest rewards by 50% for 24 hours",
+      "price": 4000,
+      "category": "consumables",
+      "consumable": true,
+      "max_per_user": 3,
+      "cooldown_seconds": 86400,
+      "metadata": {
+        "type": "quest_multiplier",
+        "multiplier": 1.5,
+        "duration_hours": 24
+      }
+    }
+  }
+}

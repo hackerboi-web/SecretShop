@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}Transactions - Secret Shop{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="bi bi-clock-history me-2"></i>Transaction History</h2>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <select class="form-select" id="type-filter">
+                    <option value="">All Types</option>
+                    <option value="purchase">Purchase</option>
+                    <option value="daily">Daily Reward</option>
+                    <option value="admin_adjust">Admin Adjustment</option>
+                    <option value="giveaway">Giveaway</option>
+                    <option value="quest">Quest Reward</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <input type="date" class="form-control" id="date-from" placeholder="From">
+            </div>
+            <div class="col-md-4">
+                <input type="date" class="form-control" id="date-to" placeholder="To">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover" id="transactions-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Balance After</th>
+                        <th>Item</th>
+                        <th>Reference</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tx in transactions %}
+                    <tr data-type="{{ tx.type }}">
+                        <td>{{ tx.created_at[:16].replace('T', ' ') }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'success' if tx.amount > 0 else 'danger' }}">
+                                {{ tx.type.replace('_', ' ').title() }}
+                            </span>
+                        </td>
+                        <td class="{% if tx.amount > 0 %}text-success{% else %}text-danger{% endif %} fw-medium">
+                            {{ '+' if tx.amount > 0 else '' }}{{ tx.amount }}
+                        </td>
+                        <td>{{ tx.balance_after }}</td>
+                        <td>
+                            {% if tx.item_id %}
+                                <span class="badge bg-secondary">{{ tx.item_id }}</span>
+                                {% if tx.quantity > 1 %}×{{ tx.quantity }}{% endif %}
+                            {% else %}
+                                <span class="text-muted">—</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted small">{{ tx.reference_id or '—' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if has_more %}
+        <div class="text-center mt-3">
+            <button class="btn btn-outline-primary" id="load-more" data-page="{{ page + 1 }}">
+                <i class="bi bi-chevron-down me-1"></i>Load More
+            </button>
+        </div>
+        {% endif %}
+
+        {% if not transactions %}
+        <div class="empty-state">
+            <i class="bi bi-clock-history"></i>
+            <p>No transactions found</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('type-filter').addEventListener('change', function() {
+        const type = this.value;
+        document.querySelectorAll('#transactions-table tbody tr').forEach(row => {
+            if (!type || row.dataset.type === type) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    document.getElementById('load-more')?.addEventListener('click', async function() {
+        const btn = this;
+        const page = parseInt(btn.dataset.page);
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+
+        try {
+            const response = await fetch(`/api/transactions?page=${page}`);
+            // Would need API endpoint
+            showToast('Load more functionality coming soon', 'info');
+        } catch (e) {
+            showToast('Failed to load more', 'danger');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-chevron-down me-1"></i>Load More';
+        }
+    });
+</script>
+{% endblock %}

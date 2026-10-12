@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.name }} - Secret Shop{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb" class="mb-3">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('user.dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('user.shop') }}">Shop</a></li>
+                <li class="breadcrumb-item active">{{ item.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">{{ item.name }}</h4>
+                <span class="badge bg-primary">{{ item.category }}</span>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ item.description }}</p>
+
+                <hr>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Price</h6>
+                        <p class="fs-4 fw-bold text-primary">{{ item.price.toLocaleString() }} pts</p>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Type</h6>
+                        <p>
+                            {% if item.consumable %}
+                                <span class="badge bg-info">Consumable</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Permanent</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+
+                {% if item.max_per_user %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Max per User</h6>
+                        <p>{{ item.max_per_user }}</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if item.cooldown_seconds > 0 %}
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <h6>Cooldown</h6>
+                        <p>{{ item.cooldown_seconds // 3600 }}h {{ (item.cooldown_seconds % 3600) // 60 }}m</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if item.metadata %}
+                <div class="row mb-3">
+                    <div class="col-12">
+                        <h6>Metadata</h6>
+                        <pre class="bg-light p-3 rounded small">{{ item.metadata | tojson(indent=2) }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if item.role_id %}
+                <div class="alert alert-info">
+                    <i class="bi bi-person-badge me-2"></i>This item grants a Discord role.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card sticky-top" style="top: 100px;">
+            <div class="card-header">
+                <h5 class="mb-0">Purchase</h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Your Balance</span>
+                    <span class="balance-display fw-bold" id="detail-balance">{{ balance.balance if balance else 0 }}</span>
+                </div>
+
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="quantity">Quantity</label>
+                    <input type="number" class="form-control" id="quantity" value="1" min="1"
+                        {% if item.max_per_user %}max="{{ item.max_per_user }}"{% endif %}>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary btn-lg" onclick="buyItemDetail('{{ item.item_id }}')"
+                        {% if balance and balance.balance < item.price %}disabled{% endif %}>
+                        <i class="bi bi-cart-plus me-2"></i>Buy for <span id="total-price">{{ item.price.toLocaleString() }}</span> pts
+                    </button>
+                    <a href="{{ url_for('user.shop') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i>Back to Shop
+                    </a>
+                </div>
+
+                {% if balance and balance.balance < item.price %}
+                <div class="alert alert-warning mt-3">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Insufficient balance. Earn more points via daily rewards, quests, or chest opening.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('quantity').addEventListener('input', function() {
+        const qty = parseInt(this.value) || 1;
+        const price = {{ item.price }};
+        document.getElementById('total-price').textContent = (qty * price).toLocaleString();
+    });
+
+    async function buyItemDetail(itemId) {
+        const qty = parseInt(document.getElementById('quantity').value) || 1;
+        const btn = event.target.closest('button');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+
+        try {
+            // This would call the bot API to process purchase
+            // For now, show message
+            showToast('Purchase functionality requires bot API integration', 'info');
+        } catch (e) {
+            showToast('Purchase failed: ' + e.message, 'danger');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-cart-plus me-2"></i>Buy for <span id="total-price">{{ item.price.toLocaleString() }}</span> pts';
+        }
+    }
+</script>
+{% endblock %}

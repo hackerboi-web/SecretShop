@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # PostgreSQL database (optional - using Supabase instead)
+  # db:
+  #   image: postgres:15-alpine
+  #   environment:
+  #     POSTGRES_DB: secret_shop
+  #     POSTGRES_USER: secret_shop
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #     - ./shared/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+  #   ports:
+  #     - "5432:5432"
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U secret_shop"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    container_name: secret-shop-bot
+    environment:
+      - DISCORD_TOKEN=${DISCORD_TOKEN}
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - DISCORD_GUILD_ID=${DISCORD_GUILD_ID}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - BOT_API_PORT=3001
+      - BOT_API_HOST=0.0.0.0
+      - JWT_PRIVATE_KEY_PATH=/app/keys/private.pem
+      - JWT_PUBLIC_KEY_PATH=/app/keys/public.pem
+      - JWT_ISSUER=secret-shop-bot
+      - JWT_AUDIENCE=secret-shop-dashboard
+      - DASHBOARD_SHARED_SECRET=${DASHBOARD_SHARED_SECRET}
+      - DASHBOARD_URL=http://dashboard:5000
+      - PANEL_CHANNEL_ID=${PANEL_CHANNEL_ID}
+      - ADMIN_ROLE_IDS=${ADMIN_ROLE_IDS}
+      - NODE_ENV=production
+    volumes:
+      - ./bot/keys:/app/keys:ro
+      - ./bot/items.json:/app/items.json:ro
+      - ./shared/items.schema.json:/app/shared/items.schema.json:ro
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+    depends_on:
+      # - db
+      - dashboard
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: secret-shop-dashboard
+    environment:
+      - FLASK_SECRET_KEY=${FLASK_SECRET_KEY}
+      - FLASK_ENV=production
+      - DISCORD_CLIENT_ID=${DISCORD_CLIENT_ID}
+      - DISCORD_CLIENT_SECRET=${DISCORD_CLIENT_SECRET}
+      - OAUTH2_REDIRECT_URI=${OAUTH2_REDIRECT_URI}
+      - SUPABASE_URL=${SUPABASE_URL}
+      - SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY}
+      - SUPABASE_SERVICE_ROLE_KEY=${SUPABASE_SERVICE_ROLE_KEY}
+      - BOT_API_URL=http://bot:3001
+      - DASHBOARD_SHARED_SECRET=${DASHBOARD_SHARED_SECRET}
+      - ADMIN_ROLE_IDS=${ADMIN_ROLE_IDS}
+      - DASHBOARD_PORT=5000
+      - DASHBOARD_HOST=0.0.0.0
+    volumes:
+      - ./bot/items.json:/app/items.json:ro
+    ports:
+      - "5000:5000"
+    restart: unless-stopped
+    # depends_on:
+    #   - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# volumes:
+#   postgres_data:
+
+networks:
+  default:
+    name: secret-shop-network
