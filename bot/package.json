@@ -2,13 +2,12 @@
   "name": "secret-shop-bot",
   "version": "1.0.0",
   "description": "Discord economy bot with Components v2 panels",
-  "main": "dist/index.js",
+  "main": "src/index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx watch src/index.ts",
-    "lint": "eslint src --ext .ts",
-    "register-commands": "tsx src/utils/registerCommands.ts"
+    "build": "node --check src/index.js",
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "register-commands": "node src/utils/registerCommands.js"
   },
   "dependencies": {
     "discord.js": "^14.14.1",
@@ -33,5 +32,6 @@
   },
   "engines": {
     "node": ">=18.0.0"
-  }
+  },
+  "type": "module"
 }
